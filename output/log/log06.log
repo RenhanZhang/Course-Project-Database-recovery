@@ -1,0 +1,24 @@
+2	-1	1	update	1	0	xxx	one
+3	-1	2	update	2	0	xxx	two
+4	-1	8	update	3	0	xxxxx	three
+5	-1	16	update	4	0	xxxx	four
+6	-1	3	update	5	0	xxxx	four
+7	3	2	commit
+8	7	2	end
+9	2	1	abort
+10	9	1	CLR	1	0	xxx	-1
+11	10	1	end
+12	-1	-1	begin_checkpoint
+14	6	3	abort
+15	14	3	CLR	5	0	xxxx	-1
+16	15	3	end
+17	-1	5	update	6	0	xxx	one
+18	-1	6	update	7	0	xxx	two
+19	-1	7	update	8	0	xxxxx	three
+20	17	5	update	9	0	xxx	one
+21	18	6	update	10	0	x	0
+22	19	7	update	11	0	xxxxx	three
+23	22	7	update	12	0	xxxxx	three
+24	-1	-1	begin_checkpoint
+25	24	-1	end_checkpoint	{ [ 5 20 U ] [ 6 21 U ] [ 7 23 U ] [ 8 4 U ] [ 16 5 U ]}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ] [ 6 17 ] [ 7 18 ] [ 8 19 ] [ 9 20 ] [ 10 21 ] [ 11 22 ] [ 12 23 ]}
+26	23	7	commit

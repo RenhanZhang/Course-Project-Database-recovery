@@ -6,7 +6,7 @@ rm -r output/dbs/*
 ./main.o testcases/test03
 ./main.o testcases/test04
 ./main.o testcases/test05
-
+./main.o testcases/test06
 echo "test00"
 diff output/log/log00.log correct/logs/log00.log
 diff output/dbs/db00.db correct/dbs/db00.db

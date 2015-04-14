@@ -28,6 +28,15 @@ void LogMgr::setLastLSN(int txnum, int lsn){
     else
         tx_table[txnum] = txTableEntry {lsn, U};
 }
+/*
+void setRecLSN(int pg_id, int lsn){
+     map<int,int>::iterator it = dirty_page_table.find(pg_id);
+     if(it == dirty_page_table.end())
+         dirty_page_table[pg_id] = lsn;
+     else if(it->second > lsn)
+         dirty_page_table[pg_id] = lsn;
+}
+*/
 
 /*
  * Force log records up to and including the one with the
@@ -216,7 +225,7 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
 
           /* if it's update, do:
              (1): write the before image to the page
-             (2): append a CLR to the logtail and update tx_table
+             (2): append a CLR to the logtail and update tx_table, dirty_page_table
              (3): remove this LSN from the toUndo
              (4): change the lastLSN for this transaction
              if this is the first action of this tx:
@@ -227,12 +236,17 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
           */
           if(type == UPDATE){
              UpdateLogRecord* ulr = (UpdateLogRecord*) log[i];
-             se->pageWrite(ulr->getPageID(), ulr->getOffset(), ulr->getBeforeImage(), thisLSN);   //(1)
-             
+             int pg_id = ulr->getPageID();
+             se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), thisLSN);   //(1)
+            
              int clrLSN = se->nextLSN();
              CompensationLogRecord* clr = new CompensationLogRecord(clrLSN, getLastLSN(txid), txid, ulr->getPageID(), ulr->getOffset(), ulr->getBeforeImage(), ulr->getprevLSN());
              logtail.push_back(clr);                                                               //(2)
              setLastLSN(txid, clr->getLSN());
+
+             map<int,int>::iterator it = dirty_page_table.find(pg_id);
+             if(it == dirty_page_table.end())
+                   dirty_page_table[pg_id] = clrLSN;
 
              toUndo.erase(thisLSN);                                                                //(3)                                                              //(4)         
              tx_table[ulr->getTxID()].lastLSN = clrLSN;                                            //(4)    
@@ -337,9 +351,7 @@ void LogMgr::commit(int txid){
      LogRecord* end_lr = new LogRecord(end_lsn, commit_lsn, txid, END);
      logtail.push_back(end_lr);                   //(3)
  
-     tx_table.erase(txid);                        //(4)
-     //tx_table[txid].status = C;                   //(4)
-     //setLastLSN(txid, commit_lsn);               //(4)
+     tx_table.erase(txid);                        //(4)function checkpoint() and end of that function? How many
 }
 
 /*
