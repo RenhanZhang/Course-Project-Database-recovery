@@ -9,6 +9,7 @@
 10	9	1	CLR	1	0	xxx	-1
 11	10	1	end
 12	-1	-1	begin_checkpoint
+13	12	-1	end_checkpoint	{ [ 3 6 U ] [ 8 4 U ] [ 16 5 U ]}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ]}
 14	6	3	abort
 15	14	3	CLR	5	0	xxxx	-1
 16	15	3	end

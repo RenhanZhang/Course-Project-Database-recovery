@@ -96,11 +96,19 @@ void LogMgr::analyze(vector <LogRecord*> log){
 
 
     // dirty page table for undoable action: UPDATE, CLR
-    if(type == UPDATE  || type == CLR){
+    if(type == UPDATE){
       UpdateLogRecord* lr = (UpdateLogRecord*) log[i];
       if(dirty_page_table.find(lr->getPageID()) == dirty_page_table.end())
           dirty_page_table[lr->getPageID()] = thisLSN;
     }
+
+    if(type == CLR){
+      CompensationLogRecord* lr = (CompensationLogRecord*) log[i];
+      if(dirty_page_table.find(lr->getPageID()) == dirty_page_table.end())
+          dirty_page_table[lr->getPageID()] = thisLSN;
+    }
+
+
   }
 }
 
@@ -312,19 +320,19 @@ void LogMgr::abort(int txid){
 void LogMgr::checkpoint(){
      /* do the following:
      (1) write begin ckpt
-     (2) flush logtail 
-     (3) write end ckpt
+     (2) write end ckpt
+     (3) flush logtail
      (4) write master_lsn
      */
      int bg_ckpt_lsn = se->nextLSN();
      LogRecord* begin_lr = new LogRecord(bg_ckpt_lsn, NULL_LSN, NULL_TX, BEGIN_CKPT);
      logtail.push_back(begin_lr);        //(1)
 
-     flushLogTail(bg_ckpt_lsn);           //(2)
-
      int end_ckpt_lsn = se->nextLSN();
      ChkptLogRecord* ckpt = new ChkptLogRecord(end_ckpt_lsn, bg_ckpt_lsn, NULL_TX, tx_table, dirty_page_table);
-     logtail.push_back(ckpt);  //(3)
+     logtail.push_back(ckpt);  //(2)
+
+     flushLogTail(end_ckpt_lsn);           //(3)
      
      se->store_master(bg_ckpt_lsn); //(4)
 }
