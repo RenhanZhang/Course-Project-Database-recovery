@@ -10,16 +10,22 @@
 11	10	1	end
 12	-1	-1	begin_checkpoint
 13	12	-1	end_checkpoint	{ [ 3 6 U ] [ 8 4 U ] [ 16 5 U ]}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ]}
-14	6	3	abort
-15	14	3	CLR	5	0	xxxx	-1
-16	15	3	end
-17	-1	5	update	6	0	xxx	one
-18	-1	6	update	7	0	xxx	two
-19	-1	7	update	8	0	xxxxx	three
-20	17	5	update	9	0	xxx	one
-21	18	6	update	10	0	x	0
-22	19	7	update	11	0	xxxxx	three
-23	22	7	update	12	0	xxxxx	three
-24	-1	-1	begin_checkpoint
-25	24	-1	end_checkpoint	{ [ 5 20 U ] [ 6 21 U ] [ 7 23 U ] [ 8 4 U ] [ 16 5 U ]}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ] [ 6 17 ] [ 7 18 ] [ 8 19 ] [ 9 20 ] [ 10 21 ] [ 11 22 ] [ 12 23 ]}
-26	23	7	commit
+14	6	3	CLR	5	0	xxxx	-1
+15	14	3	end
+16	5	16	CLR	4	0	xxxx	-1
+17	16	16	end
+18	4	8	CLR	3	0	xxxxx	-1
+19	18	8	end
+20	-1	-1	begin_checkpoint
+21	20	-1	end_checkpoint	{}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ]}
+22	-382990125	3	abort
+23	-1	5	update	6	0	xxx	one
+24	-1	6	update	7	0	xxx	two
+25	-1	7	update	8	0	xxxxx	three
+26	23	5	update	9	0	xxx	one
+27	24	6	update	10	0	x	0
+28	25	7	update	11	0	xxxxx	three
+29	28	7	update	12	0	xxxxx	three
+30	-1	-1	begin_checkpoint
+31	30	-1	end_checkpoint	{ [ 3 22 C ] [ 5 26 U ] [ 6 27 U ] [ 7 29 U ]}	{ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] [ 5 6 ] [ 6 23 ] [ 7 24 ] [ 8 25 ] [ 9 26 ] [ 12 29 ]}
+32	29	7	commit
