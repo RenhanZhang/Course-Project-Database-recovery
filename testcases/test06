@@ -1,11 +1,14 @@
 StorageEngine/sampleDBFile.txt
 1 write 1 0 one
-2 write 2 0 one
-3 write 3 0 one
-4 write 4 0 one
-5 write 5 0 one
-1 commit
+2 write 2 0 two
+3 write 3 0 three
+4 write 4 0 four
+5 write 5 0 five
 4 commit
-crash {6}
-checkpoint
+1 commit
+crash {20}
+crash {20}
+crash {20}
+5 write 6 1 six
+5 commit
 end
