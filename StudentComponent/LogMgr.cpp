@@ -28,15 +28,6 @@ void LogMgr::setLastLSN(int txnum, int lsn){
     else
         tx_table[txnum] = txTableEntry {lsn, U};
 }
-/*
-void setRecLSN(int pg_id, int lsn){
-     map<int,int>::iterator it = dirty_page_table.find(pg_id);
-     if(it == dirty_page_table.end())
-         dirty_page_table[pg_id] = lsn;
-     else if(it->second > lsn)
-         dirty_page_table[pg_id] = lsn;
-}
-*/
 
 /*
  * Force log records up to and including the one with the
@@ -96,11 +87,19 @@ void LogMgr::analyze(vector <LogRecord*> log){
 
 
     // dirty page table for undoable action: UPDATE, CLR
-    if(type == UPDATE  || type == CLR){
+    if(type == UPDATE){
       UpdateLogRecord* lr = (UpdateLogRecord*) log[i];
       if(dirty_page_table.find(lr->getPageID()) == dirty_page_table.end())
           dirty_page_table[lr->getPageID()] = thisLSN;
     }
+
+    if(type == CLR){
+      CompensationLogRecord* lr = (CompensationLogRecord*) log[i];
+      if(dirty_page_table.find(lr->getPageID()) == dirty_page_table.end())
+          dirty_page_table[lr->getPageID()] = thisLSN;
+    }
+
+
   }
 }
 
