@@ -166,7 +166,7 @@ bool LogMgr::redo(vector <LogRecord*> log){
                     continue;
                
                bool success = false;
-               if(type == UPDATE){
+               if(type == UPDATE){                                              //(4)
                     UpdateLogRecord* ulr = (UpdateLogRecord*) log[i];
                     success = se->pageWrite(pg_id, ulr->getOffset(), ulr->getAfterImage(), thisLSN);
                }else{
