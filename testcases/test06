@@ -7,7 +7,8 @@ StorageEngine/sampleDBFile.txt
 2 commit
 1 abort
 checkpoint
-crash {1}
+crash {10}
+checkpoint
 3 abort
 5 write 6 0 one
 6 write 7 0 two
