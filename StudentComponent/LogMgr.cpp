@@ -28,15 +28,6 @@ void LogMgr::setLastLSN(int txnum, int lsn){
     else
         tx_table[txnum] = txTableEntry {lsn, U};
 }
-/*
-void setRecLSN(int pg_id, int lsn){
-     map<int,int>::iterator it = dirty_page_table.find(pg_id);
-     if(it == dirty_page_table.end())
-         dirty_page_table[pg_id] = lsn;
-     else if(it->second > lsn)
-         dirty_page_table[pg_id] = lsn;
-}
-*/
 
 /*
  * Force log records up to and including the one with the
@@ -216,7 +207,8 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
          if(tx_table[txnum].status != C)
              toUndo[tx_table[txnum].lastLSN] = true;
          int abort_lsn = se->nextLSN();
-         logtail.push_back(new LogRecord(abort_lsn, getLastLSN(txnum), txnum, ABORT));
+         //logtail.push_back(new LogRecord(abort_lsn, getLastLSN(txnum), txnum, ABORT));
+         logtail.push_back(new LogRecord(abort_lsn, 222222, txnum, ABORT));
          setLastLSN(txnum, abort_lsn);
      }
 
