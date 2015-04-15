@@ -207,8 +207,8 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
          if(tx_table[txnum].status != C)
              toUndo[tx_table[txnum].lastLSN] = true;
          int abort_lsn = se->nextLSN();
-         //logtail.push_back(new LogRecord(abort_lsn, getLastLSN(txnum), txnum, ABORT));
-         logtail.push_back(new LogRecord(abort_lsn, 222222, txnum, ABORT));
+         logtail.push_back(new LogRecord(abort_lsn, getLastLSN(txnum), txnum, ABORT));
+         //logtail.push_back(new LogRecord(abort_lsn, 222222, txnum, ABORT));
          setLastLSN(txnum, abort_lsn);
      }
 
@@ -237,7 +237,8 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
           if(type == UPDATE){
              UpdateLogRecord* ulr = (UpdateLogRecord*) log[i];
              int pg_id = ulr->getPageID();
-             se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), thisLSN);   //(1)
+             if(!(se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), thisLSN)))   //(1)
+                 return;
             
              int clrLSN = se->nextLSN();
              CompensationLogRecord* clr = new CompensationLogRecord(clrLSN, getLastLSN(txid), txid, ulr->getPageID(), ulr->getOffset(), ulr->getBeforeImage(), ulr->getprevLSN());
@@ -382,7 +383,7 @@ void LogMgr::recover(string log){
  * Logs an update to the database and updates tables if needed.
  */
 int LogMgr::write(int txid, int page_id, int offset, string input, string oldtext){
-    /* (1) change dirty_page_table
+    /* (1) change dirty_page_table and tx_table
        (2) append a logrecord to the logtail
     */
     int thisLSN = se->nextLSN();
