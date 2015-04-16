@@ -36,6 +36,8 @@ void LogMgr::setLastLSN(int txnum, int lsn){
  */
 void LogMgr::flushLogTail(int maxLSN){
     string logStr = "";
+    if(logtail.size() == 0)
+       return;
     if(logtail[0]->getLSN() > maxLSN)
         return;
 

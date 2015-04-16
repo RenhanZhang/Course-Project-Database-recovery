@@ -1,25 +1,25 @@
- StorageEngine/sampleDBFile.txt
- 1 write 1 0 one
- 1 write 2 1 fjsalfj
- 1 write 3 1 fjsalfj
- 1 write 4 1 fjsalfj
- 1 write 5 1 fjsalfj
- 1 write 6 1 fjsalfj
- 6 write 7 0 gsa
- 1 write 8 1 fjsalfj
- 1 write 9 1 fjsalfj
- 1 write 10 1 fjsalfj
- 1 write 11 1 fjsalfj
- 2 write 13 0 two
- 1 write 14 0 gsa
- 2 commit
- checkpoint
- 3 write 14 0 three
- 3 write 15 0 four
- 3 write 16 0 rw
- checkpoint
- crash {25}
- crash {30}
- checkpoint
- checkpoint
- end
+StorageEngine/sampleDBFile.txt
+1 write 1 0 one
+1 write 2 1 fjsalfj
+1 write 3 1 fjsalfj
+1 write 4 1 fjsalfj
+1 write 5 1 fjsalfj
+1 write 6 1 fjsalfj
+6 write 7 0 gsa
+1 write 8 1 fjsalfj
+1 write 9 1 fjsalfj
+1 write 10 1 fjsalfj
+1 write 11 1 fjsalfj
+2 write 13 0 two
+1 write 14 0 gsa
+2 commit
+checkpoint
+3 write 14 0 three
+3 write 15 0 four
+3 write 16 0 rw
+checkpoint
+crash {25}
+crash {30}
+checkpoint
+checkpoint
+end
