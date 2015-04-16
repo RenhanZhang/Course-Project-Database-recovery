@@ -86,6 +86,7 @@ void LogMgr::analyze(vector <LogRecord*> log){
       tx_table.erase(thisTxId);
     else if(type == COMMIT)
       tx_table[thisTxId].status = C;
+    
 
 
     // dirty page table for undoable action: UPDATE, CLR
@@ -128,7 +129,7 @@ bool LogMgr::redo(vector <LogRecord*> log){
           /* if update, avoid undoing if any of the 3 holds: 
           (1) the page is not dirty
           (2) the page is not dirty, but the recLSN > thisLSN
-          (3) pageLSN is greater than thisLSN
+          (3) pageLSN is greater than or equal to thisLSN
 
           if needs undoing, do: 
           (4): reapply the action
@@ -155,7 +156,7 @@ bool LogMgr::redo(vector <LogRecord*> log){
                if (recLSN > thisLSN)
                     continue;                          //(2)
 
-               if(se->getLSN(pg_id) > thisLSN)         //(3)
+               if(se->getLSN(pg_id) >= thisLSN)         //(3)
                     continue;
                
                bool success = false;
@@ -170,12 +171,12 @@ bool LogMgr::redo(vector <LogRecord*> log){
                if(!success)
                     return false;
           }
-          else if(type == COMMIT){
-               setLastLSN(log[i]->getTxID(), thisLSN);
-               tx_table[log[i]->getTxID()].status = C;
-          }
-          else if (type == END)
-                tx_table.erase(log[i]->getTxID()); 
+          //else if(type == COMMIT){
+            //   setLastLSN(log[i]->getTxID(), thisLSN);
+              // tx_table[log[i]->getTxID()].status = C;
+          //}
+          //else if (type == END)
+            //    tx_table.erase(log[i]->getTxID()); 
           
      }
      
@@ -210,7 +211,6 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
              toUndo[tx_table[txnum].lastLSN] = true;
          int abort_lsn = se->nextLSN();
          logtail.push_back(new LogRecord(abort_lsn, getLastLSN(txnum), txnum, ABORT));
-         //logtail.push_back(new LogRecord(abort_lsn, 222222, txnum, ABORT));
          setLastLSN(txnum, abort_lsn);
      }
 
@@ -245,15 +245,15 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
              logtail.push_back(clr);                                                               //(1)
              setLastLSN(txid, clr->getLSN());
 
-             if(!(se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), clrLSN)))   //(2)
-                 return;
-
              map<int,int>::iterator it = dirty_page_table.find(pg_id);
              if(it == dirty_page_table.end())
                    dirty_page_table[pg_id] = clrLSN;
 
+             if(!(se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), clrLSN)))   //(2)
+                 return;
+
              toUndo.erase(thisLSN);                                                                //(3)                                                              //(4)         
-             tx_table[ulr->getTxID()].lastLSN = clrLSN;                                            //(4)    
+             setLastLSN(ulr->getTxID(), clrLSN);                                                   //(4)    
              if(ulr->getprevLSN() == NULL_TX){
                   LogRecord* elr = new LogRecord(se->nextLSN(), getLastLSN(txid), txid, END);
                   logtail.push_back(elr);                                                          //(5)
@@ -305,6 +305,8 @@ vector<LogRecord*> LogMgr::stringToLRVector(string logstring){
  */
 void LogMgr::abort(int txid){
      /* all_logs consists of two parts: logs on disk and logs in the log tail*/
+     if(getLastLSN(txid) == NULL_LSN)
+        return;
      vector<LogRecord*> all_logs = stringToLRVector(se->getLog());
      all_logs.insert(all_logs.end(), logtail.begin(), logtail.end());
      undo(all_logs, txid);
