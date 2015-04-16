@@ -224,8 +224,8 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
           TxType type = log[i]->getType();
 
           /* if it's update, do:
-             (1): write the before image to the page
-             (2): append a CLR to the logtail and update tx_table, dirty_page_table
+             (1): append a CLR to the logtail and update tx_table, dirty_page_table 
+             (2): write the before image to the page
              (3): remove this LSN from the toUndo
              (4): change the lastLSN for this transaction
              if this is the first action of this tx:
@@ -237,13 +237,14 @@ void LogMgr::undo(vector <LogRecord*> log, int txnum){
           if(type == UPDATE){
              UpdateLogRecord* ulr = (UpdateLogRecord*) log[i];
              int pg_id = ulr->getPageID();
-             if(!(se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), thisLSN)))   //(1)
-                 return;
             
              int clrLSN = se->nextLSN();
              CompensationLogRecord* clr = new CompensationLogRecord(clrLSN, getLastLSN(txid), txid, ulr->getPageID(), ulr->getOffset(), ulr->getBeforeImage(), ulr->getprevLSN());
-             logtail.push_back(clr);                                                               //(2)
+             logtail.push_back(clr);                                                               //(1)
              setLastLSN(txid, clr->getLSN());
+
+             if(!(se->pageWrite(pg_id, ulr->getOffset(), ulr->getBeforeImage(), clrLSN)))   //(2)
+                 return;
 
              map<int,int>::iterator it = dirty_page_table.find(pg_id);
              if(it == dirty_page_table.end())
@@ -399,7 +400,7 @@ int LogMgr::write(int txid, int page_id, int offset, string input, string oldtex
     logtail.push_back(temp_ulr);                      //(2)
 
     return thisLSN;
-    
+  
 }
 
   /*
